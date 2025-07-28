@@ -14,6 +14,15 @@ The rough plan is:
 4. Add features to claim Opalite SSC V2.00 support
     - Encryption support
 
+The implementation shall be checked by a minimal Linux that includes different SED enabled tools
+- sedutil-cli
+   - https://github.com/Drive-Trust-Alliance/sedutil
+   - https://github.com/ChubbyAnt/sedutil
+- go-tcg-storage
+   - https://github.com/open-source-firmware/go-tcg-storage
+- nvme-cli (nvme sed module)
+   - https://github.com/linux-nvme/nvme-cli
+
 # Development Environment
 
 ## Dependencies
