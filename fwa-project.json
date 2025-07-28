@@ -1,0 +1,24 @@
+{
+  "universal": {
+    "qemu": {
+      "depends": null,
+      "sdk_url": "file://Dockerfile",
+      "repo_path": "qemu",
+      "output_dir": "output/qemu/",
+      "container_output_dirs": null,
+      "container_output_files": [
+        "build/qemu-img",
+        "build/qemu-io",
+        "build/qemu-nbd",
+        "build/qemu-system-x86_64"
+      ],
+      "build_commands": [
+        "mkdir build; cd build; ../configure --target-list=x86_64-softmmu",
+        "make -C build -j$(nproc)"
+      ],
+      "container_input_dir": "inputs/",
+      "input_dirs": null,
+      "input_files": null
+    }
+  }
+}

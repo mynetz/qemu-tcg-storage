@@ -1,0 +1,51 @@
+---
+version: '3'
+vars:
+  FIRMWARE_ACTION_CONFIG_FILE: 'fwa-project.json'
+
+tasks:
+  #=================
+  # Firmware-Action
+  #=================
+
+  build:template:
+    internal: true
+    cmds:
+      - firmware-action build --config='{{.CONFIG}}' --target='{{.TARGET}}' --recursive {{.CLI_ARGS}}
+    requires:
+      vars: [ CONFIG, TARGET ]
+
+  build:qemu:
+    desc: Build qemu from source
+    cmds:
+      - task: build-fwa:template
+        vars:
+          CONFIG: '{{.FIRMWARE_ACTION_CONFIG_FILE}}'
+          TARGET: qemu
+
+  run:qemu:
+    desc: Run custom build QEMU
+    deps:
+      - build-fwa:qemu
+    interactive: true
+    vars:
+      WRKDIR:
+        sh: mktemp -d
+      # TODO: Currently implicit dependency either build via EDK or QEMU itself
+      OVMF_PATH: /usr/share/OVMF
+      OVMF_CODE: OVMF_CODE_4M.fd
+      OVMF_VARS: OVMF_VARS_4M.fd
+    dir: "{{.WRKDIR}}"
+    cmds:
+      # Prepare the environment and dependencies
+      - cp {{.OVMF_PATH}}/{{.OVMF_VARS}} {{.OVMF_PATH}}/{{.OVMF_CODE}} ./
+      - cp {{.USER_WORKING_DIR}}/qemu/pc-bios/{vgabios-stdvga.bin,kvmvapic.bin,efi-e1000e.rom} ./
+      # Run qemu
+      - |
+        {{.USER_WORKING_DIR}}/output/qemu/qemu-system-x86_64 \
+          -m 256M \
+          -drive if=pflash,unit=0,format=raw,readonly=on,file=./{{.OVMF_CODE}} \
+          -drive if=pflash,unit=1,format=raw,file=./{{.OVMF_VARS}} \
+          -serial stdio -M q35
+      # Clean-Up
+      - rm -r {{.WRKDIR}}
